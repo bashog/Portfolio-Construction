@@ -2,6 +2,17 @@ import pandas as pd
 import numpy as np
 import scipy.stats as stats
 
+## returns ##
+
+def get_returns_from_prices(prices, method='log'):
+    ''' calculate returns from prices '''
+    if method == 'log':
+        return np.log(prices/prices.shift(1)).dropna()
+    elif method == 'simple':
+        return (prices/prices.shift(1) - 1).dropna()
+    else:
+        raise ValueError('method must be either "log" or "simple"')
+
 ### normality tests ###
 
 def skewness(r):
@@ -81,27 +92,22 @@ def var_cornish_fisher(r, level=5, modified=True):
         )
     return -(r.mean() + z*r.std(ddof=0))
 
-def summary_stats(r, riskfree_rate=0.02, periods_per_year=252):
+def summary_stats(name_col, r, riskfree_rate=0.02, periods_per_year=252):
     ''' summarize a set of returns '''
-    skew = skewness(r)
-    kurt = kurtosis(r)
-    normal = is_normal(r)
-
-    ann_ret = annualize_rets(r, periods_per_year)
-    ann_vol = annualize_vol(r, periods_per_year)
-    ann_sr = sharpe_ratio(r, riskfree_rate, periods_per_year)
-    dd = max_drawdown(r)
-    calmar = calmar_ratio(r, periods_per_year)
-    semi_dev = semi_deviation(r)
-    var_hist = var_historic(r)
-    cvar_hist = cvar_historic(r)
-    var_cornish = var_cornish_fisher(r)
-
-    col = ['Skewness', 'Kurtosis', 'Normal', 'Annualized Return', 
-    'Annualized Vol', 'Sharpe Ratio', 'Max Drawdown', 'Calmar Ratio', 
-    'Semi Deviation', 'Historic VaR', 'Historic CVaR', 'Cornish-Fisher VaR']
-    
-    return pd.DataFrame(col = col, data = [skew, kurt, normal, ann_ret, ann_vol, ann_sr, dd, calmar, semi_dev, var_hist, cvar_hist, var_cornish])
+    pd_stats = pd.DataFrame(index=[name_col])
+    r.astype('float64')
+    pd_stats['skewness'] = skewness(r)
+    pd_stats['kurtosis'] = kurtosis(r)
+    pd_stats['is_normal'] = is_normal(r)
+    pd_stats['annualized_return'] = annualize_rets(r, periods_per_year)
+    pd_stats['annualized_vol'] = annualize_vol(r, periods_per_year)
+    pd_stats['sharpe_ratio'] = sharpe_ratio(r, riskfree_rate, periods_per_year)
+    pd_stats['max_drawdown'] = max_drawdown(r)
+    pd_stats['calmar_ratio'] = calmar_ratio(r, periods_per_year)
+    pd_stats['var_historic'] = var_historic(r)
+    pd_stats['cvar_historic'] = cvar_historic(r)
+    pd_stats['var_cornish_fisher'] = var_cornish_fisher(r)
+    return pd_stats
 
 def summary_portfolio(returns, weights, riskfree_rate=0.02, periods_per_year=252):
     ''' summarize stats of a portfolio of returns '''
