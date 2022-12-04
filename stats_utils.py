@@ -109,9 +109,3 @@ def summary_stats(name_col, r, riskfree_rate=0.02, periods_per_year=252):
     pd_stats['var_cornish_fisher'] = var_cornish_fisher(r)
     return pd_stats
 
-def summary_portfolio(returns, weights, riskfree_rate=0.02, periods_per_year=252):
-    ''' summarize stats of a portfolio of returns '''
-    summary = None
-    for col in returns.columns:
-        summary_col = summary_stats(returns[col], riskfree_rate, periods_per_year)
-        summary = pd.concat(summary_col, axis=1) if summary is None else pd.concat([summary, summary_col], axis=0)
