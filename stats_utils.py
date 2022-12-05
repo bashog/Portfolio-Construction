@@ -4,6 +4,9 @@ import scipy.stats as stats
 
 ## returns ##
 
+def baba():
+    return 0
+    
 def get_returns_from_prices(prices, method='log'):
     ''' calculate returns from prices '''
     if method == 'log':
