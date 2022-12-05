@@ -1,0 +1,13 @@
+stagiaire:
+    - analyse how esg is calculate on yahoo finance
+    - analyse how is weighted the original MSCI
+    - analyse basics stat on the MSCI like distribution of Sectors etc
+
+phase 1:
+    - GMV portfolio
+    - MSR portfolio
+    - EW portfolio
+    - plot efficient frontier
+
+phase 2:
+    - search data on transaction cost on assets
