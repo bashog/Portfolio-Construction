@@ -7,3 +7,4 @@
        'SIG', 'VIV.PA', 'PNDORA.CO', 'JMT.LS', 'WFDRX', 'MB.MI', 'ATL.MI',
        'LI.PA', 'BOL.PA', 'DIE.BR', 'GFC.PA', 'SECU-B.ST', 'IDVA.SG',
        'FR.PA', 'LBGUF', 'COV.PA', 'MF.PA']
+       
