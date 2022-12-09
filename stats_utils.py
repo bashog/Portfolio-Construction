@@ -111,4 +111,3 @@ def summary_stats(name_col, r, riskfree_rate=0.02, periods_per_year=252):
     pd_stats['cvar_historic'] = cvar_historic(r)
     pd_stats['var_cornish_fisher'] = var_cornish_fisher(r)
     return pd_stats
-
