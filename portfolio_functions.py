@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from scipy.optimize import minimize
+import matplotlib.pyplot as plt
 
 def separate(df:pd.DataFrame,start_train:str,end_train:str,end_test:str='end'):
     """
@@ -32,7 +33,7 @@ def supr_assets(df:pd.DataFrame,show:bool=False):
         if (df[column] == 0.).all() or annu_rend(df[column])<0:
             supr.append(column)
     if show:
-        print(f'Les colonnes supprimées sont :')
+        print(f'The following assets will be suppressed:')
         print(*supr)
     return df.drop(supr,axis=1)
 
@@ -50,7 +51,7 @@ def annu_rend(portfolio:pd.Series,period_per_year:int=252,show:bool=False):
     final_return = (portfolio+1).prod()
     annu_return = final_return**(period_per_year/nb_days) - 1
     if show:
-        print(f'On obtient un rendement annualisé sur la période de {round(annu_return*100,3)}%.')
+        print(f'Annualized return on the period: {round(annu_return*100,3)}%.')
     return annu_return
 
 def annu_rend_df(df:pd.DataFrame,period_per_year:int=252,arr:bool=False,show:bool=False):
@@ -96,7 +97,7 @@ def annu_vol(portfolio:pd.Series,period_per_year:int=252,show=False):
     final_vol = portfolio.std()
     annu_vol = final_vol*(period_per_year**0.5)
     if show:
-        print(f'On obtient une volatilité annualisée sur la période de {round(annu_vol*100,3)}%.')
+        print(f'Annualized volatility on the period: {round(annu_vol*100,3)}%.')
     return annu_vol
 
 def portfolio_var(weights,cov:pd.DataFrame,period_per_year:int=252,show:bool=False):
@@ -113,7 +114,7 @@ def portfolio_var(weights,cov:pd.DataFrame,period_per_year:int=252,show:bool=Fal
     """
     annu_var = (weights@cov@weights)*period_per_year
     if show:
-        print(f'On obtient une variance sur la période de {round(annu_var*100,3)}%.')
+        print(f'Annualized variance on the period: {round(annu_var*100,3)}%.')
     return annu_var
 
 def portfolio_vol(weights,cov:pd.DataFrame,period_per_year:int=252,show:bool=False):
@@ -130,7 +131,7 @@ def portfolio_vol(weights,cov:pd.DataFrame,period_per_year:int=252,show:bool=Fal
     """
     annu_vol = (weights@(cov*252)@weights)**0.5
     if show:
-        print(f'On obtient une volatilité annualisée sur la période de {round(annu_vol*100,3)}%.')
+        print(f'Annualized volatility on the period: {round(annu_vol*100,3)}%.')
     return annu_vol
 
 def portfolio_rend(weights,rends:pd.DataFrame,show:bool=False):
@@ -147,6 +148,17 @@ def portfolio_rend(weights,rends:pd.DataFrame,show:bool=False):
     rendement = annu_rend(rendements,show=show)
     return rendement
 
+def gmv_portfolio(rends:pd.DataFrame,cov:pd.DataFrame,show:bool=False):
+    """
+    Return the annualized return and volatility of the global minimum variance portfolio\n
+    cov : pd.DataFrame\n
+    Covariance matrix
+    """
+    weights = np.dot(np.linalg.inv(cov*252),np.ones(cov.shape[0]))/(np.dot(np.ones(cov.shape[0]),np.dot(np.linalg.inv(cov*252),np.ones(cov.shape[0]))))
+    annual_return = portfolio_rend(weights,rends,show=show) 
+    annual_volatility = portfolio_vol(weights,cov,show=show)
+    return weights,annual_return,annual_volatility
+
 def opt_mean_variance(rends:pd.DataFrame,cov:pd.DataFrame,obj_rend:float,show:bool=False):
     """
     Renvoie un dictionnaire des poids associés à chaque asset\n
@@ -158,10 +170,10 @@ def opt_mean_variance(rends:pd.DataFrame,cov:pd.DataFrame,obj_rend:float,show:bo
     Représente le rendement annualisé souhaité 
     """
     n_assets = rends.shape[1]
-    init_weights = np.repeat(1/n_assets,n_assets)
+    init_weights,gmv_r,gmv_vol = gmv_portfolio(rends,cov)
 
     # Limites pour les poids
-    bounds = ((0.0, 1.0),) * n_assets
+    bounds = ((-1.0, 1.0),) * n_assets
 
     # Définition des contraintes
     weights_sum_to_1 = {'type': 'eq',
@@ -172,13 +184,47 @@ def opt_mean_variance(rends:pd.DataFrame,cov:pd.DataFrame,obj_rend:float,show:bo
                         'fun': lambda weights,rends: obj_rend - portfolio_rend(weights,rends)}
     
     # Fonction d'optimisation
-    weights = minimize(portfolio_var,init_weights,
+    weights = minimize(portfolio_vol,init_weights,
                        args=(cov,), method='SLSQP',
                        options={'disp': False},
                        constraints=(weights_sum_to_1,return_is_target),
                        bounds=bounds)
 
-    W = {rends.columns[i]:round(weights.x[i],3) for i in range(rends.shape[1])}
+    w = {rends.columns[i]:round(weights.x[i],3) for i in range(rends.shape[1])}
     r = portfolio_rend(weights.x,rends,show=show)
     v = portfolio_vol(weights.x,cov,show=show)
-    return W,r,v
+    return w,r,v
+
+def efficient_frontier(rends:pd.DataFrame,cov:pd.DataFrame,min:float,max:float,number:int=25,plot:bool=False):
+    """
+    Return two arrays of returns and associate volatility\n
+    min : float\n
+    Start of the range of returns\n
+    max : float\n
+    End of the range of returns\n
+    number : int\n
+    Number of points to consider\n
+    plot : bool\n
+    To plot or not the efficient frontier
+    """
+    gmv_w,gmv_r,gmv_vol = gmv_portfolio(rends,cov)
+    r_eff,vol_eff = np.linspace(gmv_r,max,number),[]
+    if plot:
+        r_eff_low,vol_eff_low = np.linspace(min,gmv_r,number),[]
+    for i in range(r_eff.shape[0]):
+        w,r,v = opt_mean_variance(rends,cov,r_eff[i])
+        vol_eff.append(v)
+        if plot:
+            w,r,v = opt_mean_variance(rends,cov,r_eff_low[i])
+            vol_eff_low.append(v)
+    
+    if plot:
+        plt.plot(vol_eff,r_eff,"black",label="Efficient Frontier")
+        plt.plot(vol_eff_low,r_eff_low,"black",label="Low Frontier",linestyle="-.")
+        plt.scatter(gmv_vol,gmv_r,color="black",label="GMV Portfolio",marker="o",s=50)
+        plt.legend()
+        plt.xlabel("Volatility")
+        plt.ylabel("Return")
+        plt.show()
+    
+    return r_eff,np.array(vol_eff)
