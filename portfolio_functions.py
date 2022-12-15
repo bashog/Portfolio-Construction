@@ -5,29 +5,124 @@ import matplotlib.pyplot as plt
 
 def separate(df:pd.DataFrame,start_train:str,end_train:str,end_test:str='end'):
     """
-    Sépare notre DataFrame initial en deux DataFrame\n
-    df : pd.DataFrame\n
-    Contient en index les dates étudiées\n
-    start_train : str\n
-    Date de début pour notre DataFrame d'entrainement\n
-    end_train : str\n
-    Date de fin pour notre DataFrame d'entrainement\n
-    end_test : None\n
-    Date de fin pour notre DataFrame d'entrainement
+    Divide the DataFrame into two DataFrame, one for training and one for testing.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        DataFrame to divide in two.
+    start_train: str
+        Date of the beginning of the training DataFrame.
+    end_train: str
+        Date of the end of the training DataFrame.
+    end_test: str
+        Date of the end of the testing DataFrame.
+    
+    Returns
+    -------
+    two pd.DataFrame
+        Two DataFrame, one for training and one for testing.
     """
+
     if end_test == 'end':
         df_test = df[(df.index > end_train)]
     else:
         df_test = df[(df.index > end_train) & (df.index <= end_test)]
     df_train = df[(df.index > start_train) & (df.index <= end_train)]
+
     return df_train,df_test
+
+def dynamic_df(df:pd.DataFrame,period_per_year:int=4):
+    """ 
+    Divide the DataFrame in several DataFrame.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame to divide.
+    period_per_year : int
+        Number of period per year to create from the DataFrame.
+    
+    Returns
+    -------
+    dict
+        Dictionary of DataFrame with the key being the period_per_year number.
+    """
+
+    nb_years = df.shape[0]//252
+    period_per_year = nb_years*period_per_year
+
+    df_dict = {}
+    for i in range(period_per_year):
+        start = i*df.shape[0]//period_per_year
+        end = (i+1)*df.shape[0]//period_per_year
+        df_slice = supr_assets(df.iloc[start:end,:])
+        df_dict[i+1] = df_slice
+
+    return df_dict
+
+def absolute_weights(weights:dict):
+    """
+    Calculate the absolute weights of the portfolio.
+
+    Parameters
+    ----------
+    weights : dict
+        Dictionary of the weights of the portfolio.
+    
+    Returns
+    -------
+    dict
+        Dictionary of the absolute weights of the portfolio.
+    """
+
+    abs_weights = {}
+    for i in weights.keys():
+        abs_weights[i] = abs(weights[i])
+    return abs_weights
+
+def plot_weights(weights:dict):
+    """
+    Plot the weights of the portfolio.
+
+    Parameters
+    ----------
+    weights : dict
+        Dictionary of the weights of the portfolio.
+    """
+
+    plt.figure(figsize=(10,10))
+    abs_weights = absolute_weights(weights)
+    sort = {k: v for k, v in sorted(abs_weights.items(), key=lambda item: item[1],reverse=True)}
+    
+    def func(pct, values):
+        if pct < 2:
+            return ""
+        return "{:.1f}%".format(pct)
+
+    plt.pie(sort.values(),autopct=lambda pct: func(pct,sort.values()))
+    plt.axis('equal')
+    plt.title('Weights of the portfolio')
+    plt.legend(labels=sort.keys(),borderpad=1,fancybox=True,framealpha=1,prop={'size': 9})
+    plt.show()
 
 def supr_assets(df:pd.DataFrame,show:bool=False):
     """
-    Supprime les colonnes entièrement composées de 0. et renvoie un DataFrame sans ces colonnes
+    Delete the columns entirely composed of 0.
+
+    Parameters
+    ----------
     df : pd.DataFrame
-    DataFrame contenant les rendements.
+        DataFrame to clean.
+    show : bool
+        To show or not the assets that will be suppressed.
+    
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame without the columns entirely composed of 0.
     """
+
     supr = []
     for column in df.columns:
         if (df[column] == 0.).all() or annu_rend(df[column])<0:
@@ -35,52 +130,83 @@ def supr_assets(df:pd.DataFrame,show:bool=False):
     if show:
         print(f'The following assets will be suppressed:')
         print(*supr)
+
     return df.drop(supr,axis=1)
 
 def annu_rend(portfolio:pd.Series,period_per_year:int=252,show:bool=False):
     """
-    Calcule le rendement annualisé de la série considérée\n
-    portfolio : pd.Series\n
-    Series des rendements pris en compte\n
-    period_per_year : int\n
-    Période considérée pour calculer le rendement annualisé\n
-    show : bool\n
-    Pour afficher ou non le résultat
+    Calculate the annualized return of the series considered
+
+    Parameters
+    ----------
+    portfolio : pd.Series
+        Series of the returns considered.
+    period_per_year : int
+        Period considered to calculate the annualized return.
+    show : bool
+        To show or not the result.
+
+    Returns
+    -------
+    float
+        Annualized return of the series considered.
     """
+
     nb_days = portfolio.shape[0]
     final_return = (portfolio+1).prod()
     annu_return = final_return**(period_per_year/nb_days) - 1
     if show:
         print(f'Annualized return on the period: {round(annu_return*100,3)}%.')
+    
     return annu_return
 
 def annu_rend_df(df:pd.DataFrame,period_per_year:int=252,arr:bool=False,show:bool=False):
     """
-    Calcule le rendement annualisé pour chaque asset considéré dans le DataFrame et retourne un dictionnaire\n
-    df : pd.DataFrame\n
-    DataFrame avec les séries de chaque asset\n
-    period_per_year : int\n
-    Période considérée pour calculer le rendement annualisé\n
-    show : bool\n
-    Pour afficher ou non le résultat\n
-    arr : bool\n
-    Si faux la fonction retourne un dictionnaire sinon un array
+    Calculated annualized return for each asset considered in the DataFrame
+    
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame composed of the returns of the assets.
+    period_per_year : int
+        Period considered to calculate the annualized return.
+    arr : bool
+        If false the function returns a dictionary otherwise an array.
+    show : bool
+        To show or not the result of each annualized return.
+
+    Returns
+    -------
+    dict or array
+        Dictionary of annualized returns of the assets or array of annualized returns of the assets.
     """
+
     rendements = {}
     for i in df.columns:
         rendements[i] = round(annu_rend(df[i]),5)
+    
     if not arr:
         return rendements
+    
     else:
         return np.array(list(rendements.values()))
 
 def cov(df:pd.DataFrame):
     """
-    Calcule la matrice de covariance de nos assets sélectionnés\n
-    df : pd.DataFrame\n
-    DataFrame composé des rendements de nos assets\n
+    Calculate the covariance matrix of the DataFrame.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame to calculate the covariance matrix.
+    
+    Returns
+    -------
+    pd.DataFrame
+        Covariance matrix of the DataFrame.
     """
-    # Ici il n'y a pas de racine puisqu'on travaille avec la variance et non l'écart-type
+
+    # So useless
     return df.cov()
 
 def annu_vol(portfolio:pd.Series,period_per_year:int=252,show=False):
