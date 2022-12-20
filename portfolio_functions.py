@@ -135,7 +135,7 @@ def supr_assets(df:pd.DataFrame,show:bool=False):
 
 def annu_rend(portfolio:pd.Series,period_per_year:int=252,show:bool=False):
     """
-    Calculate the annualized return of the series considered
+    Calculate the annualized return of the series considered.
 
     Parameters
     ----------
@@ -162,7 +162,7 @@ def annu_rend(portfolio:pd.Series,period_per_year:int=252,show:bool=False):
 
 def annu_rend_df(df:pd.DataFrame,period_per_year:int=252,arr:bool=False,show:bool=False):
     """
-    Calculated annualized return for each asset considered in the DataFrame
+    Calculated annualized return for each asset considered in the DataFrame.
     
     Parameters
     ----------
@@ -211,14 +211,23 @@ def cov(df:pd.DataFrame):
 
 def annu_vol(portfolio:pd.Series,period_per_year:int=252,show=False):
     """
-    Calcule la volatilité annualisée de la série\n
-    portfolio : pd.Series\n
-    Series des rendements pris en compte\n
-    period_per_year : int\n
-    Période considérée pour calculer la volatilité annualisée\n
-    show : bool\n
-    Pour afficher ou non le résultat
+    Calculate the annualized volatility of the series considered.
+
+    Parameters
+    ----------
+    portfolio : pd.Series
+        Series of the returns considered.
+    period_per_year : int
+        Period considered to calculate the annualized return.
+    show : bool
+        To show or not the result.
+    
+    Returns
+    -------
+    int
+        Annualized volatility of the series considered.
     """
+
     nb_days = portfolio.shape[0]
     final_vol = portfolio.std()
     annu_vol = final_vol*(period_per_year**0.5)
@@ -228,16 +237,25 @@ def annu_vol(portfolio:pd.Series,period_per_year:int=252,show=False):
 
 def portfolio_var(weights,cov:pd.DataFrame,period_per_year:int=252,show:bool=False):
     """
-    Calcule la variance à partir d'un matrice de covariance et des poids\n
-    cov : pd.DataFrame\n
-    Matrice de covariance\n
-    weights\n
-    Poids considérés pour chaque assets\n
-    period_per_year : int\n
-    Période considérée pour calculer la volatilité annualisée\n
-    show : bool\n
-    Pour afficher ou non le résultat
+    Calculate the variance of the portfolio from the covariance matrix and the weights.
+    
+    Parameters
+    ----------
+    cov : pd.DataFrame
+        Covariance matrix of the DataFrame.
+    weights :
+        Weights considered for each assets.
+    period_per_year : int
+        Period considered to calculate the annualized variance.
+    show : bool
+        To show or not the result.
+    
+    Returns
+    -------
+    int
+        Annualized variance of the portfolio.
     """
+
     annu_var = (weights@cov@weights)*period_per_year
     if show:
         print(f'Annualized variance on the period: {round(annu_var*100,3)}%.')
@@ -245,41 +263,74 @@ def portfolio_var(weights,cov:pd.DataFrame,period_per_year:int=252,show:bool=Fal
 
 def portfolio_vol(weights,cov:pd.DataFrame,period_per_year:int=252,show:bool=False):
     """
-    Calcule la volatilité à partir d'un matrice de covariance annualisée et des poids\n
-    cov : pd.DataFrame\n
-    Matrice de covariance\n
-    weights\n
-    Poids considérés pour chaque assets\n
-    period_per_year : int\n
-    Période considérée pour calculer la volatilité annualisée\n
-    show : bool\n
-    Pour afficher ou non le résultat
+    Calculate the annualized volatility of the portfolio from the covariance matrix and the weights.
+    
+    Parameters
+    ----------
+    cov : pd.DataFrame
+        Covariance matrix of the DataFrame.
+    weights :
+        Weights considered for each assets.
+    period_per_year : int
+        Period considered to calculate the annualized volatility.
+    show : bool
+        To show or not the result.
+    
+    Returns
+    -------
+    int
+        Annualized volatility of the portfolio.
     """
+
     annu_vol = (weights@(cov*252)@weights)**0.5
     if show:
         print(f'Annualized volatility on the period: {round(annu_vol*100,3)}%.')
     return annu_vol
 
-def portfolio_rend(weights,rends:pd.DataFrame,show:bool=False):
+def portfolio_rend(weights,rends:pd.DataFrame,period_per_year:int=252,show:bool=False):
     """
-    Renvoie les rendements du portefeuille selon les assets considérés et les poids associés\n
-    annu_rends\n
-    DataFrame contenant les rendements annualisés de chaque asset\n
-    weights\n
-    Liste des poids pour chaque asset\n
-    show : bool\n
-    Pour afficher ou non le résultat
+    Calculate the annualized return of the portfolio from the returns and the weights.
+    
+    Parameters
+    ----------
+    rend : pd.DataFrame
+        Returns of the DataFrame.
+    weights :
+        Weights considered for each assets.
+    period_per_year : int
+        Period considered to calculate the annualized return.
+    show : bool
+        To show or not the result.
+    
+    Returns
+    -------
+    int
+        Annualized return of the portfolio.
     """
+
     rendements = pd.Series((rends*weights).sum(axis=1),name="Portfolio")
-    rendement = annu_rend(rendements,show=show)
+    rendement = annu_rend(rendements,period_per_year=period_per_year,show=show)
     return rendement
 
 def gmv_portfolio(rends:pd.DataFrame,cov:pd.DataFrame,show:bool=False):
     """
-    Return the annualized return and volatility of the global minimum variance portfolio\n
-    cov : pd.DataFrame\n
-    Covariance matrix
+    Calculate the annualized return and volatility of the global minimum variance portfolio from the returns and the covariance matrix.
+    
+    Parameters
+    ----------
+    rend : pd.DataFrame
+        Returns of the DataFrame.
+    cov : pd.DataFrame
+        Covariance matrix of the DataFrame.
+    show : bool
+        To show or not the result.
+    
+    Returns
+    -------
+    array, float, float
+        Weights of the assets, annualized return of the portfolio, annualized volatility of the portfolio.
     """
+
     weights = np.dot(np.linalg.inv(cov*252),np.ones(cov.shape[0]))/(np.dot(np.ones(cov.shape[0]),np.dot(np.linalg.inv(cov*252),np.ones(cov.shape[0]))))
     annual_return = portfolio_rend(weights,rends,show=show) 
     annual_volatility = portfolio_vol(weights,cov,show=show)
@@ -368,6 +419,7 @@ def efficient_frontier(rends:pd.DataFrame,cov:pd.DataFrame,min:float,max:float,n
         if plot:
             w,r,v = opt_mean_variance(rends,cov,r_eff_low[i])
             vol_eff_low.append(v)
+    
     
     if plot:
         plt.plot(vol_eff,r_eff,"black",label="Efficient Frontier")
