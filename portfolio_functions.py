@@ -3,7 +3,7 @@ import numpy as np
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 
-def separate(df:pd.DataFrame,start_train:str,end_train:str,end_test:str='end'):
+def separate(df:pd.DataFrame, start_train:str,end_train:str,end_test:str='end'):
     """
     Divide the DataFrame into two DataFrame, one for training and one for testing.
 
