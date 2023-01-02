@@ -11,5 +11,5 @@ phase 1:
 
 phase 2:
     - search data on transaction cost on assets
-    - add transaction cost to the portfolio
+    - add transaction cost to the portfolio suppose that transactions costs are equal to 0.1% of the share
     
