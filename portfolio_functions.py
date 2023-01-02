@@ -32,6 +32,33 @@ def separate(df:pd.DataFrame, start_train:str,end_train:str,end_test:str='end'):
 
     return df_train,df_test
 
+def supr_assets(df:pd.DataFrame,show:bool=False):
+    """
+    Delete the columns entirely composed of 0.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame to clean.
+    show : bool
+        To show or not the assets that will be suppressed.
+    
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame without the columns entirely composed of 0.
+    """
+
+    supr = []
+    for column in df.columns:
+        if (df[column] == 0.).all() or annu_rend(df[column])<0:
+            supr.append(column)
+    if show:
+        print(f'The following assets will be suppressed:')
+        print(*supr)
+
+    return df.drop(supr,axis=1)
+
 def dynamic_df(df:pd.DataFrame,period_per_year:int=4):
     """ 
     Divide the DataFrame in several DataFrame.
@@ -105,33 +132,6 @@ def plot_weights(weights:dict):
     plt.title('Weights of the portfolio')
     plt.legend(labels=sort.keys(),borderpad=1,fancybox=True,framealpha=1,prop={'size': 9})
     plt.show()
-
-def supr_assets(df:pd.DataFrame,show:bool=False):
-    """
-    Delete the columns entirely composed of 0.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame to clean.
-    show : bool
-        To show or not the assets that will be suppressed.
-    
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame without the columns entirely composed of 0.
-    """
-
-    supr = []
-    for column in df.columns:
-        if (df[column] == 0.).all() or annu_rend(df[column])<0:
-            supr.append(column)
-    if show:
-        print(f'The following assets will be suppressed:')
-        print(*supr)
-
-    return df.drop(supr,axis=1)
 
 def annu_rend(portfolio:pd.Series,period_per_year:int=252,show:bool=False):
     """
@@ -318,7 +318,7 @@ def gmv_portfolio(rends:pd.DataFrame,cov:pd.DataFrame,show:bool=False):
     
     Parameters
     ----------
-    rend : pd.DataFrame
+    rends : pd.DataFrame
         Returns of the DataFrame.
     cov : pd.DataFrame
         Covariance matrix of the DataFrame.
@@ -338,19 +338,27 @@ def gmv_portfolio(rends:pd.DataFrame,cov:pd.DataFrame,show:bool=False):
 
 def opt_mean_variance(rends:pd.DataFrame,cov:pd.DataFrame,obj_rend:float,risk_free=None,period_per_year:int=252,show:bool=False):
     """
-    Renvoie un dictionnaire des poids associés à chaque asset\n
-    rends : pd.DataFrame\n
-    DataFrame contenant les rendements de chaque assets\n
-    cov : pd.DataFrame\n
-    Matrice de covariance annualisé des prix\n
-    obj_rend : float\n
-    Représente le rendement annualisé souhaité\n
-    risk_free : float\n
-    Représente le rendement annualisé sans risque\n
-    period_per_year : int\n
-    Période considérée pour calculer la volatilité annualisée\n
-    show : bool\n
-    Pour afficher ou non le résultat
+    Calculate the weights of the portfolio for a given objective return.
+    
+    Parameters
+    ----------
+    rends : pd.DataFrame
+        Returns of the DataFrame.
+    cov : pd.DataFrame
+        Covariance matrix of the DataFrame.
+    obj_rend : float
+        Annualized return of the portfolio.
+    risk_free : float or None
+        Annualized risk free return.
+    period_per_year : int
+        Period considered to calculate the annualized return.
+    show : bool
+        To show or not the result.
+    
+    Returns
+    -------
+    array, float, float
+        Weights of the assets, annualized return of the portfolio, annualized volatility of the portfolio.
     """
     if risk_free != None:
         rends = rends.copy()
@@ -360,7 +368,7 @@ def opt_mean_variance(rends:pd.DataFrame,cov:pd.DataFrame,obj_rend:float,risk_fr
     init_weights = np.repeat(1/n_assets, n_assets)
 
     # Limites pour les poids
-    bounds = ((-1.0, 1.0),) * n_assets
+    bounds = ((-1., 1.),) * n_assets
 
     # Définition des contraintes
     weights_sum_to_1 = {'type': 'eq',
@@ -387,17 +395,121 @@ def opt_mean_variance(rends:pd.DataFrame,cov:pd.DataFrame,obj_rend:float,risk_fr
     v = portfolio_vol(weights.x,cov,show=show)
     return w,r,v
 
+def transactions_costs(initial,final,prices:pd.DataFrame):
+    """
+    Calculate the transactions costs of a portfolio.
+    
+    Parameters
+    ----------
+    initial : list or array
+        Initial weights of the assets.
+    final : list or array
+        Final weights of the assets.
+    prices : pd.DataFrame
+        Prices of the assets.
+    
+    Returns
+    -------
+    float
+        Transactions costs.
+    """
+    tc = 0
+    initial,final = np.array(initial),np.array(final)
+    for i in range(initial.shape[0]):
+        tc += (final[i]-initial[i])*prices.iloc[i]
+    return tc
+
+def opt_mean_variance_tc(rends:pd.DataFrame,last_prices:pd.DataFrame,cov:pd.DataFrame,obj_rend:float,last_weights=None,tc:float=0.001,period_per_year:int=252,show:bool=False):
+    """
+    Calculate the weights of the portfolio for a given objective return with transactions costs.
+    
+    Parameters
+    ----------
+    rends : pd.DataFrame
+        Returns of the DataFrame.
+    prices : pd.DataFrame
+        Prices of the assets.
+    last_weights : dict or None
+        Weights of the assets at the previous period.
+    tc : float
+        Transaction costs.
+    cov : pd.DataFrame
+        Covariance matrix of the DataFrame.
+    obj_rend : float
+        Annualized return of the portfolio.
+    period_per_year : int
+        Period considered to calculate the annualized return.
+    show : bool
+        To show or not the result.
+    
+    Returns
+    -------
+    array, float, float
+        Weights of the assets, annualized return of the portfolio, annualized volatility of the portfolio.
+    """
+
+    n_assets = rends.shape[1]
+    if last_weights == None:
+        # We have to buy the assets
+        init_weights = np.repeat(0, n_assets)
+    else:
+        init_weights = []
+        for asset in rends.columns:
+            if asset in last_weights.keys():
+                init_weights.append(last_weights[asset])
+            else:
+                init_weights.append(0)
+        init_weights = np.array(init_weights)
+
+    # Limites pour les poids
+    bounds = ((-1., 1.),) * n_assets
+
+    # Définition des contraintes
+    weights_sum_to_1 = {'type': 'eq',
+                        'fun': lambda weights: np.sum(weights) - 1}
+
+    return_is_target = {'type': 'eq',
+                        'args': (rends,last_prices,init_weights,tc,),
+                        'fun': lambda weights,rends,last_prices,init_weights,tc: obj_rend - portfolio_rend(weights,rends) - tc*transactions_costs(init_weights,weights,last_prices)}
+    
+    # Fonction d'optimisation
+    weights = minimize(portfolio_vol,init_weights,
+                       args=(cov,), method='SLSQP',
+                       options={'disp': False},
+                       constraints=(weights_sum_to_1,return_is_target),
+                       bounds=bounds)
+
+    w = {rends.columns[i]:round(weights.x[i],3) for i in range(rends.shape[1])}
+    r = portfolio_rend(weights.x,rends,show=show)
+    v = portfolio_vol(weights.x,cov,show=show)
+    print(f"Transactions costs for the rebalancing: {round(transactions_costs(init_weights,weights.x,last_prices),3)}")
+    return w,r,v
+
 def efficient_frontier(rends:pd.DataFrame,cov:pd.DataFrame,min:float,max:float,number:int=25,risk_free=None,plot:bool=False):
     """
-    Return two arrays of returns and associate volatility\n
-    min : float\n
-    Start of the range of returns\n
-    max : float\n
-    End of the range of returns\n
-    number : int\n
-    Number of points to consider\n
-    plot : bool\n
-    To plot or not the efficient frontier
+    Calculate the efficient frontier of a portfolio.
+    
+    Parameters
+    ----------
+    rends : pd.DataFrame
+        Returns of the DataFrame.
+    cov : pd.DataFrame
+        Covariance matrix of the DataFrame.
+    min : float
+        Start of the range of returns.
+    max : float
+        End of the range of returns.
+    number : int
+        Number of points to consider.
+    risk_free : float or None
+        Risk free rate.
+    plot : bool
+        To plot or not the efficient frontier.
+    
+    Returns
+    -------
+    array
+        Efficient frontier of the portfolio without the risk free rate or both of them.
     """
     gmv_w,gmv_r,gmv_vol = gmv_portfolio(rends,cov)
     r_eff,vol_eff = np.linspace(gmv_r,max,number),[]
