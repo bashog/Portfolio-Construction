@@ -480,9 +480,12 @@ def opt_mean_variance_tc(rends:pd.DataFrame,last_prices:pd.DataFrame,cov:pd.Data
                        bounds=bounds)
 
     w = {rends.columns[i]:round(weights.x[i],3) for i in range(rends.shape[1])}
+    if sum(weights.x)<0.9:
+        print("Warning : the sum of the weights is less than 0.9. \nWe take the weights of the previous period.")
+        w = last_weights
     r = portfolio_rend(weights.x,rends,show=show)
     v = portfolio_vol(weights.x,cov,show=show)
-    print(f"Transactions costs for the rebalancing: {round(transactions_costs(init_weights,weights.x,last_prices),3)}")
+
     return w,r,v
 
 def efficient_frontier(rends:pd.DataFrame,cov:pd.DataFrame,min:float,max:float,number:int=25,risk_free=None,plot:bool=False):
