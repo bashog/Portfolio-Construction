@@ -10,7 +10,17 @@ The period of the study is from 2013 until now. The portfolio will be rebalanced
 
 ## Table of Contents
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua
+- [Portfolio Construction based on ESG Factors](#portfolio-construction-based-on-esg-factors)
+  - [Context and Purpose of the project](#context-and-purpose-of-the-project)
+  - [Table of Contents](#table-of-contents)
+  - [Structure of the repository](#structure-of-the-repository)
+  - [Methodology](#methodology)
+    - [What are ESG factors?](#what-are-esg-factors)
+    - [Why MSCI Europe index as a benchmark?](#why-msci-europe-index-as-a-benchmark)
+    - [How to build the portfolio ?](#how-to-build-the-portfolio-)
+  - [Results](#results)
+    - [About the comparison of returns](#about-the-comparison-of-returns)
+    - [About the comparison of volatility](#about-the-comparison-of-volatility)
 
 ## Structure of the repository
 
@@ -55,12 +65,36 @@ Notebooks used for the construction of the portfolio :
 
 The client target are young people form Europe that want to invest in a sustainable way. The MSCI Europe index is a good benchmark because it is a free float-adjusted market capitalization index that is designed to measure the equity market performance of developed markets in Europe. With an addition of ESG factors, we can build a portfolio that is more sustainable than the MSCI Europe index.
 
-### How to build a portfolio (basic approach)?
+### How to build the portfolio ?
 
 First, we will select the assets from the MSCI index based on their ESG score. We will select the assets with the lowest ESG score with a focus on the environmental factors.
+So, we keep the assets that are not in the sectors of Energie, Materiaux, Services Publics. Then, for the Total score, Governance Score and Social Score, we keep the assets with a score inferior to their median. For the Environmental Score, we keep the assets with a score inferior to the 25th percentile.
 
-Then we will build a dynamic portfolio based on two strategies :
+Then we will build a dynamic portfolio based on different strategies :
 
+- equal weight
+- mean variance
 
+We keep the mean variance portfolio but we add the transaction costs. We will compare the performance of the portfolio with the performance of the MSCI Europe index.
 
-### How to build a portfolio (advanced approach)?
+The portfolio will be rebalanced every quarter.
+
+## Results
+
+With the mean variance portfolio with transaction cost :
+
+1. The porfolio has **60%** of the time positive returns compared to **70%** of the time for the MSCI EUROPE (it's a difference of 5 quarters).
+2. The maximum drawdown of our portfolio and the MSCI Europe. We found a drawdown of **-25.72%** (annualized) during Q3-2015 and **-23.79%** for the MSCI (annualized) during Q1-2021.
+3. The higest return is **88.43%** (annualized) during Q1-2015 and **110.42%** for the MSCI (annualized) during Q1-2015.
+4. The average return is **6.01%** (annualized) for the portfolio and **14.86%** for the MSCI (annualized).
+5. The average volatility is **10.49%** (annualized) for the portfolio and **15.16%** for the MSCI (annualized).
+
+### About the comparison of returns
+
+!['ok'](_attachments/comp%20ret.png)  
+!['ok'](_attachments/diff%20returns.png)  
+
+### About the comparison of volatility
+
+!['ok'](_attachments/comp%20vol.png)  
+!['ok'](_attachments/diff%20vol.png)
