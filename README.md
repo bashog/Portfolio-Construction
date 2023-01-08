@@ -89,8 +89,9 @@ With the mean variance portfolio with transaction cost :
 4. The average return is **6.01%** (annualized) for the portfolio and **14.86%** for the MSCI (annualized).
 5. The average volatility is **10.49%** (annualized) for the portfolio and **15.16%** for the MSCI (annualized).
 6. The annualized return (not the average) is **5.13%** for the portfolio and **11.72%** for the MSCI.
-7. The sharpe ratio is **4.184** for the portfolio and **9.865** for the MSCI.
-8. 1000€ in 2013 is **1668€** in 2022 for our portfolio, **2617€** for the MSCI and **1224€** for the livret A.
+7. The annualized volatility (not the average) is **11.88%** for the portfolio and **15.63%** for the MSCI.
+8. The sharpe ratio is **4.184** for the portfolio and **9.865** for the MSCI.
+9. 1000€ in 2013 is **1668€** in 2022 for our portfolio, **2617€** for the MSCI and **1224€** for the livret A.
 
 ### About the comparison of returns
 
