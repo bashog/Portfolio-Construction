@@ -88,6 +88,9 @@ With the mean variance portfolio with transaction cost :
 3. The higest return is **88.43%** (annualized) during Q1-2015 and **110.42%** for the MSCI (annualized) during Q1-2015.
 4. The average return is **6.01%** (annualized) for the portfolio and **14.86%** for the MSCI (annualized).
 5. The average volatility is **10.49%** (annualized) for the portfolio and **15.16%** for the MSCI (annualized).
+6. The annualized return (not the average) is **5.13%** for the portfolio and **11.72%** for the MSCI.
+7. The sharpe ratio is **4.184** for the portfolio and **9.865** for the MSCI.
+8. 1000€ in 2013 is **1668€** in 2022 for our portfolio and **2617€** for the MSCI.
 
 ### About the comparison of returns
 
