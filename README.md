@@ -55,6 +55,8 @@ Notebooks used for the construction of the portfolio :
 
 **Environmental, social, and governance (ESG) factors** are non-financial factors that can affect the performance of a company. It tells investors the level of risk exposure a company has in these three areas. Therefore, a high ESG score means that the company has a high risk exposure in these three areas.
 
+![risk esg](_attachments/risk%20esg.png)  
+
 **Environmental factors** are related to the impact of a company on the environment. For example, the use of renewable energy, the use of recycled materials, carbon footprint, etc.
 
 **Social factors** are related to the impact of a company on the society. For example, the use of child labor, the use of forced labor, the use of human rights, etc. Also linked with the labor management, health and safety, etc.
@@ -83,22 +85,22 @@ The portfolio will be rebalanced every quarter.
 
 With the mean variance portfolio with transaction cost :
 
-1. The porfolio has **60%** of the time positive returns compared to **70%** of the time for the MSCI EUROPE (it's a difference of 5 quarters).
-2. The maximum drawdown of our portfolio and the MSCI Europe. We found a drawdown of **-25.72%** (annualized) during Q3-2015 and **-23.79%** for the MSCI (annualized) during Q1-2021.
-3. The higest return is **88.43%** (annualized) during Q1-2015 and **110.42%** for the MSCI (annualized) during Q1-2015.
-4. The average return is **6.01%** (annualized) for the portfolio and **14.86%** for the MSCI (annualized).
-5. The average volatility is **10.49%** (annualized) for the portfolio and **15.16%** for the MSCI (annualized).
-6. The annualized return (not the average) is **5.13%** for the portfolio and **11.72%** for the MSCI.
-7. The annualized volatility (not the average) is **11.88%** for the portfolio and **15.63%** for the MSCI.
-8. The sharpe ratio is **0.264** for the portfolio and **0.621** for the MSCI.
-9. 1000€ in 2013 is **1668€** in 2022 for our portfolio, **2617€** for the MSCI and **1224€** for the livret A.
+1. The porfolio and the MSCI EUROPE have **70%** of the time positive returns.
+2. About the maximum drawdown of our portfolio and the MSCI Europe. We found a drawdown of **-27.91%** (annualized) during Q3-2020 and **-23.79%** for the MSCI (annualized) during Q1-2021.
+3. The higest return is **102.57%** (annualized) and **110.42%** for the MSCI (annualized) in Q1-2015.
+4. The **annualized return** over 10-years periods is **8.27%** for the portfolio and **11.72%** for the MSCI.
+5. The **annualized volatility** over 10-years periods is **14.04%** for the portfolio and **15.63%** for the MSCI.
+6. The sharpe ratio is **0.447** for the portfolio over 10-years periods and **0.621** for the MSCI.
+7. 1000€ in 2013 is **2253.65** in 2022 for our portfolio, **2617€** for the MSCI and **1224€** for the livret A.
 
 ### About the comparison of returns
 
-!['ok'](_attachments/comp%20ret.png)  
+!['ok'](_attachments/comp%20returns.png)
+
 !['ok'](_attachments/diff%20returns.png)  
 
 ### About the comparison of volatility
 
-!['ok'](_attachments/comp%20vol.png)  
+!['ok'](_attachments/comp%20vol.png)
+
 !['ok'](_attachments/diff%20vol.png)
