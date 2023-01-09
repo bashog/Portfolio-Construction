@@ -21,6 +21,9 @@ The period of the study is from 2013 until now. The portfolio will be rebalanced
   - [Results](#results)
     - [About the comparison of returns](#about-the-comparison-of-returns)
     - [About the comparison of volatility](#about-the-comparison-of-volatility)
+  - [How to evaluate the biodiversity impact of our portfolio ?](#how-to-evaluate-the-biodiversity-impact-of-our-portfolio-)
+    - [First method : Environment score](#first-method--environment-score)
+    - [The second method : Sector analysis with Encore Biodiversity](#the-second-method--sector-analysis-with-encore-biodiversity)
 
 ## Structure of the repository
 
@@ -104,3 +107,33 @@ With the mean variance portfolio with transaction cost :
 !['ok'](_attachments/comp%20vol.png)
 
 !['ok'](_attachments/diff%20vol.png)
+
+## How to evaluate the biodiversity impact of our portfolio ?
+
+### First method : Environment score
+
+ The first method is to approximate the biodiversity  by using the environment score of yahoo finance. This approximation is based on the fact that the biodiversity is the diversity of species in a the world or a particular habitat and if a company has a good environment score this implies that it will help to have a better biodiversity (the company doesn't degrade the environment).
+
+ ![comp score](_attachments/comp%20env%20score.png)  
+
+ The result is clear, the environment score of our portfolio is far way lower than the MSCI. This result is logical because we applied filters on environment score to choose our assets.
+
+### The second method : Sector analysis with Encore Biodiversity
+
+The second method is to focus on sectors of our porfolio and the impact of each sector on biodiversity.
+
+![comp score](_attachments/sector%20biodiversity.png)  
+
+We used the website Encore Biodiversity to evaluate each sector from our portfolio according 
+to five criterias
+
+![encore bio](_attachments/encore%20bio.png)  
+
+- Impact score:
+  - 1: Very Low
+  - 2: Low
+  - 3: Medium
+  - 4: High
+  - 5: Very High
+
+We  can  see  on  this  analysis  that  our  sectors  are  not  the  best  in  terms  of  solid  waste,  soil pollutants, water pollutants, GHG emissions and Ecosystem use. All these factors are taken into account to calculate the biodiversity impact. To conclude we can say that the two methods are contradictory because our sectors are not well rated but according to environmental score they are classified as companies with a negligible impact on the environment.
