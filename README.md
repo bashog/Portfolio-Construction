@@ -95,10 +95,12 @@ With the mean variance portfolio with transaction cost :
 
 ### About the comparison of returns
 
-!['ok'](_attachments/comp%20returns.png)  
+!['ok'](_attachments/comp%20returns.png)
+
 !['ok'](_attachments/diff%20returns.png)  
 
 ### About the comparison of volatility
 
-!['ok'](_attachments/comp%20vol.png)  
+!['ok'](_attachments/comp%20vol.png)
+
 !['ok'](_attachments/diff%20vol.png)
